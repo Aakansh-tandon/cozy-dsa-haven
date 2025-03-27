@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Plus } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -12,23 +12,42 @@ import { mockProblems, mockSolutions, mockComments } from "@/data/mockData";
 
 const PlatformPage: React.FC = () => {
   const { platform } = useParams<{ platform: string }>();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProblem, setSelectedProblem] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState("problems");
   const [currentSolution, setCurrentSolution] = useState("");
+
+  // Validate if platform exists in mockProblems
+  useEffect(() => {
+    if (platform && !Object.keys(mockProblems).includes(platform)) {
+      // Navigate to leetcode if platform is invalid
+      navigate("/platform/leetcode");
+    }
+  }, [platform, navigate]);
 
   // Get problems for the current platform
   const problems = platform ? (mockProblems[platform as keyof typeof mockProblems] || []) : [];
 
   // Update the current solution when a problem is selected
   useEffect(() => {
-    if (selectedProblem) {
-      const solution = mockSolutions[`${platform}-${selectedProblem}`];
+    if (selectedProblem && platform) {
+      const solutionKey = `${platform}-${selectedProblem}`;
+      const solution = mockSolutions[solutionKey as keyof typeof mockSolutions];
       if (solution) {
         setCurrentSolution(solution);
+      } else {
+        setCurrentSolution("// No solution available yet.\n// Click 'Add Solution' to add one.");
       }
     }
   }, [selectedProblem, platform]);
+
+  // When tab changes to "add", clear selection
+  useEffect(() => {
+    if (selectedTab === "add") {
+      setSelectedProblem(null);
+    }
+  }, [selectedTab]);
 
   return (
     <AnimatedTransition>

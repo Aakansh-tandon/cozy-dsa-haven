@@ -9,10 +9,11 @@ import {
   Check, 
   Copy, 
   Share,
-  Eye,
-  Plus
+  Plus,
+  Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
+import { mockSolutions } from "@/data/mockData";
 
 interface Comment {
   id: string;
@@ -41,6 +42,7 @@ const SolutionView: React.FC<SolutionViewProps> = ({
   setSelectedTab
 }) => {
   const [editMode, setEditMode] = useState(false);
+  const [isGeneratingAICode, setIsGeneratingAICode] = useState(false);
 
   const handleSaveSolution = () => {
     toast.success("Solution saved successfully!");
@@ -53,6 +55,47 @@ const SolutionView: React.FC<SolutionViewProps> = ({
     toast.success("Solution copied to clipboard!");
     navigator.clipboard.writeText(currentSolution);
   };
+
+  const generateAICode = async () => {
+    if (!selectedProblem || !platform) return;
+    
+    setIsGeneratingAICode(true);
+    
+    try {
+      // Mock API call to OpenAI - in a real app, you would call the OpenAI API
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Generate a mock solution
+      const aiSolution = `// AI-generated solution for ${platform} problem #${selectedProblem}
+function solve${platform}Problem${selectedProblem}(input) {
+  // Analyze the problem
+  const result = input.map(item => item * 2);
+  
+  // Implement optimal algorithm
+  return result.reduce((sum, num) => sum + num, 0);
+}
+
+// Example usage
+// solve${platform}Problem${selectedProblem}([1, 2, 3, 4, 5]);`;
+      
+      setCurrentSolution(aiSolution);
+      toast.success("AI solution generated!");
+    } catch (error) {
+      toast.error("Failed to generate AI solution. Please try again.");
+    } finally {
+      setIsGeneratingAICode(false);
+    }
+  };
+
+  // Get all available solutions for the selected platform
+  const availableSolutions = platform 
+    ? Object.keys(mockSolutions)
+      .filter(key => key.startsWith(`${platform}-`))
+      .map(key => ({
+        id: key.split('-')[1],
+        code: mockSolutions[key as keyof typeof mockSolutions]
+      }))
+    : [];
 
   return (
     <Card className="lg:col-span-2 overflow-hidden border border-border bg-card/50 backdrop-blur-md shadow-lg">
@@ -84,6 +127,16 @@ const SolutionView: React.FC<SolutionViewProps> = ({
               </>
             ) : (
               <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-primary/30 text-primary hover:bg-primary/10"
+                  onClick={generateAICode}
+                  disabled={isGeneratingAICode}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {isGeneratingAICode ? "Generating..." : "AI Code"}
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -137,24 +190,38 @@ const SolutionView: React.FC<SolutionViewProps> = ({
               </div>
             </div>
             
+            {availableSolutions.length > 0 && (
+              <div className="border-t border-border/50 p-4 bg-background/50">
+                <h3 className="text-sm font-medium mb-3">All Available Solutions</h3>
+                <div className="space-y-2">
+                  {availableSolutions.map((solution) => (
+                    <div 
+                      key={solution.id}
+                      onClick={() => {
+                        setCurrentSolution(solution.code);
+                        setSelectedProblem(solution.id);
+                      }}
+                      className={`p-2 rounded-md cursor-pointer border border-border/50 hover:bg-primary/5 ${
+                        selectedProblem === solution.id ? "bg-primary/10 border-primary/30" : ""
+                      }`}
+                    >
+                      <span className="text-sm">Solution #{solution.id}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <div className="border-t border-border/50 p-4 bg-muted/20">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">234 views</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    size="sm"
-                    onClick={() => setSelectedTab("add")}
-                    className="bg-primary hover:bg-primary/90 gap-1"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Add Solution
-                  </Button>
-                </div>
+              <div className="flex justify-end items-center">
+                <Button 
+                  size="sm"
+                  onClick={() => setSelectedTab("add")}
+                  className="bg-primary hover:bg-primary/90 gap-1"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add Solution
+                </Button>
               </div>
             </div>
           </div>

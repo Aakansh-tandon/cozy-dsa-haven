@@ -11,7 +11,6 @@ interface Problem {
   title: string;
   difficulty: string;
   tags: string[];
-  progress: number;
 }
 
 interface ProblemListProps {
