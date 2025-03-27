@@ -115,23 +115,6 @@ const ProblemList: React.FC<ProblemListProps> = ({
                     </span>
                   ))}
                 </div>
-                {/* Progress indicator */}
-                <div className="mt-2 w-full bg-muted/30 rounded-full h-1.5 overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${
-                      problem.progress === 100 
-                        ? "bg-green-500" 
-                        : problem.progress > 0 
-                          ? "bg-primary" 
-                          : "bg-muted"
-                    }`}
-                    style={{ width: `${problem.progress}%` }}
-                  />
-                </div>
-                <div className="flex justify-between items-center mt-1 text-xs text-muted-foreground">
-                  <span>Progress</span>
-                  <span>{problem.progress}%</span>
-                </div>
               </motion.div>
             ))
           ) : (

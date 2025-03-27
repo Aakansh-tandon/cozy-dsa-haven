@@ -41,11 +41,11 @@ const platforms = [
     problemCount: 1854
   },
   {
-    id: "atcoder",
-    name: "AtCoder",
-    icon: "https://img.atcoder.jp/assets/atcoder.png",
-    description: "Japanese programming contest platform with high-quality algorithm challenges.",
-    problemCount: 937
+    id: "codingninjas",
+    name: "Coding Ninjas",
+    icon: "https://files.codingninjas.in/cn-logo-dark-9824.svg",
+    description: "Learn coding and prepare for tech interviews with courses on data structures, algorithms, and more.",
+    problemCount: 1785
   },
   {
     id: "geeksforgeeks",

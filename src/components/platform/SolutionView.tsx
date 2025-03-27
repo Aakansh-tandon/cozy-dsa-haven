@@ -8,14 +8,11 @@ import {
   Edit, 
   Check, 
   Copy, 
-  Share, 
-  Heart, 
-  MessageSquare,
+  Share,
   Eye,
   Plus
 } from "lucide-react";
 import { toast } from "sonner";
-import CommentSection from "./CommentSection";
 
 interface Comment {
   id: string;
@@ -44,7 +41,6 @@ const SolutionView: React.FC<SolutionViewProps> = ({
   setSelectedTab
 }) => {
   const [editMode, setEditMode] = useState(false);
-  const [showComments, setShowComments] = useState(false);
 
   const handleSaveSolution = () => {
     toast.success("Solution saved successfully!");
@@ -88,15 +84,6 @@ const SolutionView: React.FC<SolutionViewProps> = ({
               </>
             ) : (
               <>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="border-primary/30 text-primary hover:bg-primary/10 gap-1"
-                  onClick={() => setShowComments(!showComments)}
-                >
-                  <MessageSquare className="h-3.5 w-3.5" />
-                  <span>{comments.length}</span>
-                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -148,37 +135,28 @@ const SolutionView: React.FC<SolutionViewProps> = ({
                   </pre>
                 )}
               </div>
-              
-              {/* Comments section */}
-              {showComments && <CommentSection comments={comments} />}
             </div>
             
-            {!showComments && !editMode && (
-              <div className="border-t border-border/50 p-4 bg-muted/20">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">234 views</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Heart className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">56 likes</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 gap-1">
-                      <Heart className="h-3.5 w-3.5" />
-                      Like
-                    </Button>
-                    <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 gap-1">
-                      <MessageSquare className="h-3.5 w-3.5" />
-                      Comment
-                    </Button>
+            <div className="border-t border-border/50 p-4 bg-muted/20">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">234 views</span>
                   </div>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    size="sm"
+                    onClick={() => setSelectedTab("add")}
+                    className="bg-primary hover:bg-primary/90 gap-1"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Add Solution
+                  </Button>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         ) : (
           <div className="p-8 text-center">

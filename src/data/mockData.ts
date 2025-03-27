@@ -2,19 +2,24 @@
 // Mock data for problems
 export const mockProblems = {
   leetcode: [
-    { id: "1", title: "Two Sum", difficulty: "Easy", tags: ["Array", "Hash Table"], progress: 100 },
-    { id: "2", title: "Add Two Numbers", difficulty: "Medium", tags: ["Linked List", "Math"], progress: 75 },
-    { id: "3", title: "Longest Substring Without Repeating Characters", difficulty: "Medium", tags: ["String", "Sliding Window"], progress: 0 },
+    { id: "1", title: "Two Sum", difficulty: "Easy", tags: ["Array", "Hash Table"] },
+    { id: "2", title: "Add Two Numbers", difficulty: "Medium", tags: ["Linked List", "Math"] },
+    { id: "3", title: "Longest Substring Without Repeating Characters", difficulty: "Medium", tags: ["String", "Sliding Window"] },
   ],
   hackerrank: [
-    { id: "1", title: "Solve Me First", difficulty: "Easy", tags: ["Basic"], progress: 100 },
-    { id: "2", title: "Simple Array Sum", difficulty: "Easy", tags: ["Array"], progress: 50 },
-    { id: "3", title: "Compare the Triplets", difficulty: "Easy", tags: ["Array"], progress: 0 },
+    { id: "1", title: "Solve Me First", difficulty: "Easy", tags: ["Basic"] },
+    { id: "2", title: "Simple Array Sum", difficulty: "Easy", tags: ["Array"] },
+    { id: "3", title: "Compare the Triplets", difficulty: "Easy", tags: ["Array"] },
   ],
   codeforces: [
-    { id: "1", title: "Watermelon", difficulty: "Easy", tags: ["Math"], progress: 100 },
-    { id: "2", title: "Way Too Long Words", difficulty: "Easy", tags: ["String"], progress: 0 },
-    { id: "3", title: "Theatre Square", difficulty: "Easy", tags: ["Math"], progress: 0 },
+    { id: "1", title: "Watermelon", difficulty: "Easy", tags: ["Math"] },
+    { id: "2", title: "Way Too Long Words", difficulty: "Easy", tags: ["String"] },
+    { id: "3", title: "Theatre Square", difficulty: "Easy", tags: ["Math"] },
+  ],
+  codingninjas: [
+    { id: "1", title: "Pair Sum", difficulty: "Easy", tags: ["Array", "Hash Table"] },
+    { id: "2", title: "Maximum Subarray Sum", difficulty: "Medium", tags: ["Array", "Dynamic Programming"] },
+    { id: "3", title: "Rotate Matrix", difficulty: "Medium", tags: ["Array", "Matrix"] },
   ]
 };
 
@@ -59,6 +64,22 @@ export const mockSolutions = {
 }`,
   "hackerrank-1": `function solveMeFirst(a, b) {
   return a + b;
+}`,
+  "codingninjas-1": `function pairSum(arr, target) {
+  const map = new Map();
+  const result = [];
+  
+  for (let i = 0; i < arr.length; i++) {
+    const complement = target - arr[i];
+    
+    if (map.has(complement)) {
+      result.push([map.get(complement), i]);
+    }
+    
+    map.set(arr[i], i);
+  }
+  
+  return result;
 }`
 };
 
