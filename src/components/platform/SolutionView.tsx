@@ -87,16 +87,6 @@ function solve${platform}Problem${selectedProblem}(input) {
     }
   };
 
-  // Get all available solutions for the selected platform
-  const availableSolutions = platform 
-    ? Object.keys(mockSolutions)
-      .filter(key => key.startsWith(`${platform}-`))
-      .map(key => ({
-        id: key.split('-')[1],
-        code: mockSolutions[key as keyof typeof mockSolutions]
-      }))
-    : [];
-
   return (
     <Card className="lg:col-span-2 overflow-hidden border border-border bg-card/50 backdrop-blur-md shadow-lg">
       <CardHeader className="p-4 border-b border-border/50 flex flex-row justify-between items-center">
@@ -189,28 +179,6 @@ function solve${platform}Problem${selectedProblem}(input) {
                 )}
               </div>
             </div>
-            
-            {availableSolutions.length > 0 && (
-              <div className="border-t border-border/50 p-4 bg-background/50">
-                <h3 className="text-sm font-medium mb-3">All Available Solutions</h3>
-                <div className="space-y-2">
-                  {availableSolutions.map((solution) => (
-                    <div 
-                      key={solution.id}
-                      onClick={() => {
-                        setCurrentSolution(solution.code);
-                        setSelectedProblem(solution.id);
-                      }}
-                      className={`p-2 rounded-md cursor-pointer border border-border/50 hover:bg-primary/5 ${
-                        selectedProblem === solution.id ? "bg-primary/10 border-primary/30" : ""
-                      }`}
-                    >
-                      <span className="text-sm">Solution #{solution.id}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
             
             <div className="border-t border-border/50 p-4 bg-muted/20">
               <div className="flex justify-end items-center">

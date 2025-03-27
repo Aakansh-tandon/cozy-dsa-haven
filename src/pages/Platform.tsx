@@ -9,6 +9,7 @@ import ProblemList from "@/components/platform/ProblemList";
 import SolutionView from "@/components/platform/SolutionView";
 import AddProblemForm from "@/components/platform/AddProblemForm";
 import { mockProblems, mockSolutions, mockComments } from "@/data/mockData";
+import { toast } from "sonner";
 
 const PlatformPage: React.FC = () => {
   const { platform } = useParams<{ platform: string }>();
@@ -17,6 +18,7 @@ const PlatformPage: React.FC = () => {
   const [selectedProblem, setSelectedProblem] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState("problems");
   const [currentSolution, setCurrentSolution] = useState("");
+  const [problems, setProblems] = useState<any[]>([]);
 
   // Validate if platform exists in mockProblems
   useEffect(() => {
@@ -26,8 +28,12 @@ const PlatformPage: React.FC = () => {
     }
   }, [platform, navigate]);
 
-  // Get problems for the current platform
-  const problems = platform ? (mockProblems[platform as keyof typeof mockProblems] || []) : [];
+  // Initialize problems from mockData
+  useEffect(() => {
+    if (platform) {
+      setProblems(mockProblems[platform as keyof typeof mockProblems] || []);
+    }
+  }, [platform]);
 
   // Update the current solution when a problem is selected
   useEffect(() => {
@@ -48,6 +54,20 @@ const PlatformPage: React.FC = () => {
       setSelectedProblem(null);
     }
   }, [selectedTab]);
+
+  // Function to add a new problem
+  const handleAddProblem = (newProblem: any) => {
+    if (platform) {
+      // Generate a unique ID for the new problem
+      const newId = String(Math.max(...problems.map(p => Number(p.id)), 0) + 1);
+      const problemWithId = { ...newProblem, id: newId };
+      
+      setProblems(prevProblems => [...prevProblems, problemWithId]);
+      toast.success("Problem added successfully!");
+      setSelectedTab("problems");
+      setSelectedProblem(newId);
+    }
+  };
 
   return (
     <AnimatedTransition>
@@ -105,7 +125,7 @@ const PlatformPage: React.FC = () => {
             </TabsContent>
             
             <TabsContent value="add">
-              <AddProblemForm setSelectedTab={setSelectedTab} />
+              <AddProblemForm setSelectedTab={setSelectedTab} onAddProblem={handleAddProblem} />
             </TabsContent>
           </Tabs>
         </main>
