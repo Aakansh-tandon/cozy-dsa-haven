@@ -39,7 +39,7 @@ const Navbar: React.FC = () => {
           <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
             <LucideCode className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-semibold text-xl tracking-tight neon-text">DSA Notebook</span>
+          <span className="font-semibold text-xl tracking-tight neon-text">Solution Stack</span>
         </Link>
 
         {/* Desktop Navigation */}
