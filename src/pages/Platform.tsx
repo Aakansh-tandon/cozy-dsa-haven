@@ -10,6 +10,8 @@ import SolutionView from "@/components/platform/SolutionView";
 import AddProblemForm from "@/components/platform/AddProblemForm";
 import { mockProblems, mockSolutions, mockComments } from "@/data/mockData";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const PlatformPage: React.FC = () => {
   const { platform } = useParams<{ platform: string }>();
@@ -19,6 +21,10 @@ const PlatformPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("problems");
   const [currentSolution, setCurrentSolution] = useState("");
   const [problems, setProblems] = useState<any[]>([]);
+  const [useUserSubmissions, setUseUserSubmissions] = useState(false);
+  const [leetcodeUsername, setLeetcodeUsername] = useState("");
+  const [userSolvedQuestions, setUserSolvedQuestions] = useState<any[]>([]);
+  const [isFetchingProblems, setIsFetchingProblems] = useState(false);
 
   // Validate if platform exists in mockProblems
   useEffect(() => {
@@ -28,25 +34,34 @@ const PlatformPage: React.FC = () => {
     }
   }, [platform, navigate]);
 
-  // Initialize problems from mockData
+  // Initialize problems from mockData or user submissions
   useEffect(() => {
     if (platform) {
-      setProblems(mockProblems[platform as keyof typeof mockProblems] || []);
+      if (platform === "leetcode" && useUserSubmissions && userSolvedQuestions.length > 0) {
+        setProblems(userSolvedQuestions);
+      } else {
+        setProblems(mockProblems[platform as keyof typeof mockProblems] || []);
+      }
     }
-  }, [platform]);
+  }, [platform, useUserSubmissions, userSolvedQuestions]);
 
   // Update the current solution when a problem is selected
   useEffect(() => {
     if (selectedProblem && platform) {
-      const solutionKey = `${platform}-${selectedProblem}`;
-      const solution = mockSolutions[solutionKey as keyof typeof mockSolutions];
-      if (solution) {
+      let solutionKey = `${platform}-${selectedProblem}`;
+      let solution = mockSolutions[solutionKey as keyof typeof mockSolutions];
+      // If user questions, try to get some dummy, otherwise fall back to default
+      if (useUserSubmissions && platform === "leetcode") {
+        // Instead of using mockSolutions, simulate fetch from Google API
+        setCurrentSolution(`Searching for best solution online for: ${selectedProblem} ...`);
+        // You can replace the below with Google API logic
+      } else if (solution) {
         setCurrentSolution(solution);
       } else {
         setCurrentSolution("// No solution available yet.\n// Click 'Add Solution' to add one.");
       }
     }
-  }, [selectedProblem, platform]);
+  }, [selectedProblem, platform, useUserSubmissions]);
 
   // When tab changes to "add", clear selection
   useEffect(() => {
@@ -69,11 +84,56 @@ const PlatformPage: React.FC = () => {
     }
   };
 
+  // Handle LeetCode API fetch.
+  const handleFetchUserQuestions = async () => {
+    if (!leetcodeUsername) {
+      toast.error("Please enter your LeetCode username.");
+      return;
+    }
+    setIsFetchingProblems(true);
+    try {
+      const res = await fetch(`https://alfa-leetcode-api.onrender.com/${leetcodeUsername}/submission`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch user submissions");
+      }
+      const data = await res.json();
+      // data.submissions should have solved problems (array of objects)
+      const solved = (data?.submissions || [])
+        .filter((item: any) => item.status_display === "Accepted")
+        .map((item: any, idx: number) => ({
+          id: item.title_slug || `${idx}-${item.title}`,
+          title: item.title,
+          difficulty: item.difficulty || "Unknown",
+          tags: [], // can't get tags from API, omit or fill with placeholder
+        }))
+        // Deduplicate by title, most recent first
+        .reduce((acc: any[], curr: any) => {
+          if (!acc.some(e => e.title === curr.title)) acc.push(curr);
+          return acc;
+        }, []);
+      setUserSolvedQuestions(solved);
+      setUseUserSubmissions(true);
+      toast.success("Fetched your LeetCode solved problems!");
+    } catch (e) {
+      toast.error("Failed to fetch user problems.");
+      setUserSolvedQuestions([]);
+      setUseUserSubmissions(false);
+    }
+    setIsFetchingProblems(false);
+  };
+
+  // Option to reset to site defaults
+  const handleResetProblems = () => {
+    setLeetcodeUsername("");
+    setUserSolvedQuestions([]);
+    setUseUserSubmissions(false);
+    toast.info("Switched to default question list.");
+  };
+
   return (
     <AnimatedTransition>
       <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
-        
         <main className="flex-1 container mx-auto px-4 py-8">
           <Tabs 
             defaultValue="problems" 
@@ -81,15 +141,38 @@ const PlatformPage: React.FC = () => {
             onValueChange={setSelectedTab} 
             className="w-full"
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-2">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight mb-1 text-gradient">
                   {platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Platform"} <span className="text-primary">Problems</span>
                 </h1>
                 <p className="text-muted-foreground">Browse and solve problems or add your own solutions</p>
               </div>
-              
-              <TabsList className="bg-muted/50 border border-border p-1">
+              {/* Username Input and Button (LeetCode only) */}
+              {platform === "leetcode" && (
+                <div className="flex items-center gap-2 mt-2 md:mt-0">
+                  <Input 
+                    value={leetcodeUsername}
+                    onChange={e => setLeetcodeUsername(e.target.value)}
+                    placeholder="Enter your LeetCode username"
+                    className="w-[180px]"
+                  />
+                  <Button 
+                    size="sm" 
+                    onClick={handleFetchUserQuestions}
+                    disabled={isFetchingProblems}
+                  >
+                    {isFetchingProblems ? "Loading..." : "Load My Questions"}
+                  </Button>
+                  {useUserSubmissions && (
+                    <Button size="sm" variant="ghost" onClick={handleResetProblems}>
+                      Reset
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              <TabsList className="bg-muted/50 border border-border p-1 ml-auto">
                 <TabsTrigger value="problems" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <BookOpen className="h-4 w-4" />
                   Problems
@@ -111,7 +194,6 @@ const PlatformPage: React.FC = () => {
                   selectedProblem={selectedProblem}
                   setSelectedProblem={setSelectedProblem}
                 />
-
                 {/* Solution View */}
                 <SolutionView 
                   selectedProblem={selectedProblem}
