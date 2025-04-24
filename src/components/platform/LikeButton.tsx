@@ -18,9 +18,13 @@ const LikeButton: React.FC<LikeButtonProps> = ({ initialLikes, onLike }) => {
     if (isAnimating) return;
     
     setIsAnimating(true);
-    setIsLiked(!isLiked);
-    setLikes(prev => isLiked ? prev - 1 : prev + 1);
-    onLike?.();
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
+    setLikes(prev => newLikedState ? prev + 1 : prev - 1);
+    
+    if (onLike) {
+      onLike();
+    }
 
     setTimeout(() => setIsAnimating(false), 1000);
   };

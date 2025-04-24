@@ -13,6 +13,7 @@ interface Comment {
   comment: string;
   timestamp: string;
   likes: number;
+  isLiked?: boolean;
 }
 
 interface CommentSectionProps {
@@ -47,7 +48,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ initialComments }) => {
     setComments(prev =>
       prev.map(comment =>
         comment.id === commentId
-          ? { ...comment }
+          ? { 
+              ...comment, 
+              likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
+              isLiked: !comment.isLiked
+            }
           : comment
       )
     );
