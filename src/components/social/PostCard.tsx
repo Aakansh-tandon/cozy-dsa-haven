@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageSquare, Share, Clock } from "lucide-react";
 import { Post } from "@/types/social";
 import { toast } from "sonner";
+import CommentSection from "@/components/platform/CommentSection";
 
 interface PostCardProps {
   post: Post;
@@ -14,6 +15,13 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post, onShare, onLike, onComment }) => {
+  const [showComments, setShowComments] = useState(false);
+  
+  const toggleComments = () => {
+    setShowComments(!showComments);
+    onComment(post.id);
+  };
+
   return (
     <Card className="border border-border futuristic-card hover:shadow-xl overflow-hidden">
       <CardHeader className="p-4 border-b border-border/40 bg-muted/5">
@@ -75,7 +83,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, onShare, onLike, onComment })
           </button>
           <button 
             className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
-            onClick={() => onComment(post.id)}
+            onClick={toggleComments}
           >
             <MessageSquare className="h-4 w-4" />
             <span>{post.comments}</span>
@@ -100,6 +108,12 @@ const PostCard: React.FC<PostCardProps> = ({ post, onShare, onLike, onComment })
           Copy Code
         </Button>
       </CardFooter>
+      
+      {showComments && (
+        <div className="px-4 pb-4">
+          <CommentSection initialComments={post.commentsList || []} />
+        </div>
+      )}
     </Card>
   );
 };

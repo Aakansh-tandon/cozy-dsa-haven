@@ -1,12 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import AnimatedTransition from "@/components/AnimatedTransition";
 import { motion } from "framer-motion";
 import NewPostForm from "./NewPostForm";
 import PostCard from "./PostCard";
 import SocialSidebar from "./SocialSidebar";
-import { Post } from "@/types/social";
+import { Post, Comment } from "@/types/social";
 import { toast } from "sonner";
 
 interface SocialLayoutProps {
@@ -26,20 +26,33 @@ const containerVariants = {
 };
 
 const SocialLayout: React.FC<SocialLayoutProps> = ({
-  posts,
+  posts: initialPosts,
   showNewPost,
   setShowNewPost
 }) => {
+  const [posts, setPosts] = useState<Post[]>(initialPosts.map(post => ({
+    ...post,
+    commentsList: post.commentsList || []
+  })));
+  
   const handleShare = (postId: string) => {
     toast.success("Post copied to clipboard!");
   };
 
   const handleLike = (postId: string) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === postId 
+          ? { ...post, likes: post.likes + 1 }
+          : post
+      )
+    );
     toast.success("Post liked!");
   };
 
   const handleComment = (postId: string) => {
-    toast.info("Comments feature coming soon!");
+    // This is now just toggling the comments section
+    // No message needed as comments are actually shown
   };
 
   return (
