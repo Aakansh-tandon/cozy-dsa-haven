@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -79,28 +80,72 @@ const PlatformPage: React.FC = () => {
     }
     setIsFetchingProblems(true);
     try {
+      console.log(`Fetching LeetCode submissions for: ${leetcodeUsername}`);
       const res = await fetch(`https://alfa-leetcode-api.onrender.com/${leetcodeUsername}/submission`);
+      
       if (!res.ok) {
-        throw new Error("Failed to fetch user submissions");
+        const errorText = await res.text();
+        console.error(`API Error (${res.status}):`, errorText);
+        
+        if (res.status === 429) {
+          toast.error(`Rate limit exceeded. Please try again in 1 hour.`);
+        } else {
+          toast.error(`Failed to fetch user problems for ${leetcodeUsername}. Status: ${res.status}`);
+        }
+        throw new Error(`Failed to fetch: ${res.status} ${errorText}`);
       }
+      
       const data = await res.json();
-      const solved = (data?.submissions || [])
-        .filter((item: any) => item.status_display === "Accepted")
-        .map((item: any, idx: number) => ({
-          id: item.title_slug || `${idx}-${item.title}`,
-          title: item.title,
-          difficulty: item.difficulty || "Unknown",
-          tags: [],
-        }))
-        .reduce((acc: any[], curr: any) => {
-          if (!acc.some(e => e.title === curr.title)) acc.push(curr);
-          return acc;
-        }, []);
-      setUserSolvedQuestions(solved);
-      setUseUserSubmissions(true);
-      toast.success("Fetched your LeetCode solved problems!");
+      console.log("API Response:", data);
+      
+      if (!data || !data.submissions || !Array.isArray(data.submissions)) {
+        if (data && Array.isArray(data.submission)) {
+          // Handle case where submissions are under "submission" key instead of "submissions"
+          const solved = data.submission
+            .filter((item: any) => item.statusDisplay === "Accepted")
+            .map((item: any, idx: number) => ({
+              id: item.titleSlug || `${idx}-${item.title}`,
+              title: item.title,
+              difficulty: item.difficulty || "Unknown",
+              tags: [],
+            }))
+            .reduce((acc: any[], curr: any) => {
+              if (!acc.some(e => e.title === curr.title)) acc.push(curr);
+              return acc;
+            }, []);
+          
+          if (solved.length > 0) {
+            setUserSolvedQuestions(solved);
+            setUseUserSubmissions(true);
+            toast.success(`Found ${solved.length} solved problems for ${leetcodeUsername}!`);
+          } else {
+            toast.warning(`No solved problems found for ${leetcodeUsername}.`);
+          }
+        } else {
+          toast.warning(`No solved problems found for ${leetcodeUsername}.`);
+        }
+      } else {
+        // Original code path
+        const solved = data.submissions
+          .filter((item: any) => item.status_display === "Accepted")
+          .map((item: any, idx: number) => ({
+            id: item.title_slug || `${idx}-${item.title}`,
+            title: item.title,
+            difficulty: item.difficulty || "Unknown",
+            tags: [],
+          }))
+          .reduce((acc: any[], curr: any) => {
+            if (!acc.some(e => e.title === curr.title)) acc.push(curr);
+            return acc;
+          }, []);
+        
+        setUserSolvedQuestions(solved);
+        setUseUserSubmissions(true);
+        toast.success(`Fetched ${solved.length} LeetCode solved problems!`);
+      }
     } catch (e) {
-      toast.error(`Failed to fetch user problems for ${leetcodeUsername}.`);
+      console.error("Error fetching LeetCode problems:", e);
+      toast.error(`Failed to fetch user problems for ${leetcodeUsername}. Please try again later.`);
       setUserSolvedQuestions([]);
       setUseUserSubmissions(false);
     }
