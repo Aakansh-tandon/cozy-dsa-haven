@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import AnimatedTransition from "@/components/AnimatedTransition";
@@ -12,7 +11,6 @@ import { motion } from "framer-motion";
 import { Heart, MessageSquare, Share, ThumbsUp, Code, User, Clock, Filter, TrendingUp, Plus } from "lucide-react";
 import { toast } from "sonner";
 
-// Mock data for posts
 const mockPosts = [
   {
     id: "1",
@@ -146,7 +144,6 @@ const SocialPage: React.FC = () => {
         
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row gap-6">
-            {/* Main Content */}
             <div className="flex-1">
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold tracking-tight">
@@ -346,7 +343,6 @@ const SocialPage: React.FC = () => {
               </motion.div>
             </div>
             
-            {/* Sidebar */}
             <div className="w-full md:w-80 shrink-0">
               <div className="sticky top-20">
                 <Card className="border border-border bg-card/50 backdrop-blur-md shadow-lg">

@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ThumbsUp } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import LikeButton from "./LikeButton";
 
 interface Comment {
   id: string;
@@ -15,10 +16,11 @@ interface Comment {
 }
 
 interface CommentSectionProps {
-  comments: Comment[];
+  initialComments: Comment[];
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ comments }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ initialComments }) => {
+  const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
 
   const handleAddComment = () => {
@@ -26,9 +28,29 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments }) => {
       toast.error("Comment cannot be empty");
       return;
     }
-    toast.success("Comment added successfully!");
+
+    const comment: Comment = {
+      id: Date.now().toString(),
+      username: "You", // In a real app, this would come from auth
+      avatar: "https://source.unsplash.com/random/100x100/?portrait&me",
+      comment: newComment.trim(),
+      timestamp: "Just now",
+      likes: 0
+    };
+
+    setComments(prev => [comment, ...prev]);
     setNewComment("");
-    // In a real app, you would add the comment to the database
+    toast.success("Comment added successfully!");
+  };
+
+  const handleLikeComment = (commentId: string) => {
+    setComments(prev =>
+      prev.map(comment =>
+        comment.id === commentId
+          ? { ...comment }
+          : comment
+      )
+    );
   };
 
   return (
@@ -52,10 +74,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments }) => {
                 </div>
                 <p className="text-sm mt-1">{comment.comment}</p>
                 <div className="flex items-center gap-3 mt-2">
-                  <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
-                    <ThumbsUp className="h-3.5 w-3.5" />
-                    <span>{comment.likes}</span>
-                  </button>
+                  <LikeButton 
+                    initialLikes={comment.likes} 
+                    onLike={() => handleLikeComment(comment.id)}
+                  />
                   <button className="text-xs text-muted-foreground hover:text-primary transition-colors">
                     Reply
                   </button>
