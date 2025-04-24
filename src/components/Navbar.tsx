@@ -48,10 +48,10 @@ const Navbar: React.FC = () => {
             <Home className="h-4 w-4" />
             <span>Home</span>
           </Link>
-          <Link to="/solutions" className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1.5">
+{/*           <Link to="/solutions" className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1.5">
             <BookOpen className="h-4 w-4" />
             <span>Solutions</span>
-          </Link>
+          </Link> */}
           <Link to="/social" className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1.5">
             <Users className="h-4 w-4" />
             <span>Social</span>
