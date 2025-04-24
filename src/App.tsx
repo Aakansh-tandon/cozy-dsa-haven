@@ -32,7 +32,7 @@ const App = () => {
                 <Route path="/platform/:platform" element={<Platform />} />
                 <Route path="/social" element={<Social />} />
                 <Route path="/notes" element={<Notes />} />
-                <Route path="*" element={<NotFound />} />
+{/*                 <Route path="*" element={<NotFound />} /> */}
               </Routes>
             </AnimatePresence>
           </AuthProvider>
